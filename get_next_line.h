@@ -6,7 +6,7 @@
 /*   By: ipykhtin <ipykhtin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/27 16:36:52 by ipykhtin          #+#    #+#             */
-/*   Updated: 2025/11/28 16:59:25 by ipykhtin         ###   ########.fr       */
+/*   Updated: 2025/12/12 18:57:25 by ipykhtin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,5 +21,5 @@
 #endif
 
 char	*get_next_line(int fd);
-
+char    ft_strchr(const char *s, int c);
 #endif
