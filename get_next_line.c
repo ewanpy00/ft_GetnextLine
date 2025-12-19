@@ -3,95 +3,124 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ipykhtin <ipykhtin@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ivan <ivan@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/27 16:36:29 by ipykhtin          #+#    #+#             */
-/*   Updated: 2025/12/12 19:04:57 by ipykhtin         ###   ########.fr       */
+/*   Created: 2021/10/19 11:09:06 by jdecorte          #+#    #+#             */
+/*   Updated: 2025/12/19 00:12:33 by ivan             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-#include <fcntl.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
 
-char *extract_line(char **remainder){
-    char *line;
-    char *new_remainder;
-    char *newline_pos;
-    size_t line_length;
+// join and free
+char	*ft_free(char *buffer, char *buf)
+{
+	char	*temp;
 
-    if(!*remainder || **remainder == '\0')
-        return NULL;
-    newline_pos = ft_strchr(*remainder, '\n');
-    if(newline_pos){
-        line_length = newline_pos - *remainder + 1;
-        line = malloc(line_length + 1);                                                                                                                 
-        if(!line)
-            return NULL;
-        ft_strncpy(line, *remainder, line_length);
-        line[line_length] = '\0';
-        new_remainder = ft_strdup(newline_pos + 1);
-        free(*remainder);
-        *remainder = new_remainder;
-    } else {
-        line = strdup(*remainder);
-        free(*remainder);
-        *remainder = NULL;
-    }
-    return line;
+	temp = ft_strjoin(buffer, buf);
+	free(buffer);
+	return (temp);
 }
 
-static char *str_join_and_free(char *s1, char *s2){
-    size_t len1;
-    size_t len2;
-    len1 = 0;
-    len2 = 0;
-    if(s1)
-        len1 = ft_strlen(s1);
-    if(s2)
-        len2 = ft_strlen(s2);
-    char *new_str = malloc(len1 + len2 + 1);
-    if(!new_str)
-        return NULL;
-    if(s1)
-        ft_strcpy(new_str, s1);
-    if(s2)
-        ft_strcpy(new_str + len1, s2);
-    new_str[len1 + len2] = '\0';
-    free(s1);
-    return new_str;
+// delete line find
+char	*ft_next(char *buffer)
+{
+	int		i;
+	int		j;
+	char	*line;
+
+	i = 0;
+	// find len of first line
+	while (buffer[i] && buffer[i] != '\n')
+		i++;
+	// if eol == \0 return NULL
+	if (!buffer[i])
+	{
+		free(buffer);
+		return (NULL);
+	}
+	// len of file - len of firstline + 1
+	line = ft_calloc((ft_strlen(buffer) - i + 1), sizeof(char));
+	i++;
+	j = 0;
+	// line == buffer
+	while (buffer[i])
+		line[j++] = buffer[i++];
+	free(buffer);
+	return (line);
 }
 
-char *get_next_line(int fd){
-    static char *remainder;
-    char buffer[BUFFER_SIZE + 1];
-    ssize_t bytes_read;
+// take line for return
+char	*ft_line(char *buffer)
+{
+	char	*line;
+	int		i;
 
-    if(fd < 0 || BUFFER_SIZE <= 0)
-        return NULL;
-    while(bytes_read = read(fd, buffer, BUFFER_SIZE), bytes_read > 0){
-        buffer[bytes_read] = '\0';
-        remainder = str_join_and_free(remainder, buffer);
-        if(ft_strchr(remainder, '\n'))
-            break;
-    }
-    return extract_line(&remainder);
+	i = 0;
+	// if no line return NULL
+	if (!buffer[i])
+		return (NULL);
+	// go to the eol
+	while (buffer[i] && buffer[i] != '\n')
+		i++;
+	// malloc to eol
+	line = ft_calloc(i + 2, sizeof(char));
+	i = 0;
+	// line = buffer
+	while (buffer[i] && buffer[i] != '\n')
+	{
+		line[i] = buffer[i];
+		i++;
+	}
+	// if eol is \0 or \n, replace eol by \n
+	if (buffer[i] && buffer[i] == '\n')
+		line[i++] = '\n';
+	return (line);
 }
 
-// int main(){
-//     int fd = open("text.txt", O_RDONLY);
-//     char *line;
+char	*read_file(int fd, char *res)
+{
+	char	*buffer;
+	int		byte_read;
 
-//     if (fd == -1)
-//         return 1;
+	// malloc if res dont exist
+	if (!res)
+		res = ft_calloc(1, 1);
+	// malloc buffer
+	buffer = ft_calloc(BUFFER_SIZE + 1, sizeof(char));
+	byte_read = 1;
+	while (byte_read > 0)
+	{
+		// while not eof read
+		byte_read = read(fd, buffer, BUFFER_SIZE);
+		if (byte_read == -1)
+		{
+			free(buffer);
+			return (NULL);
+		}
+		// 0 to end for leak
+		buffer[byte_read] = 0;
+		// join and free
+		res = ft_free(res, buffer);
+		// quit if \n find
+		if (ft_strchr(buffer, '\n'))
+			break ;
+	}
+	free(buffer);
+	return (res);
+}
 
-//     while ((line = get_next_line(fd)) != NULL) {
-//         printf("%s", line);
-//         free(line);
-//     }
+char	*get_next_line(int fd)
+{
+	static char	*buffer;
+	char		*line;
 
-//     close(fd);
-//     return 0;
-// }
+	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
+		return (NULL);
+	buffer = read_file(fd, buffer);
+	if (!buffer)
+		return (NULL);
+	line = ft_line(buffer);
+	buffer = ft_next(buffer);
+	return (line);
+}

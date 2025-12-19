@@ -3,23 +3,27 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ipykhtin <ipykhtin@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jdecorte <jdecorte@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/27 16:36:52 by ipykhtin          #+#    #+#             */
-/*   Updated: 2025/12/12 18:57:25 by ipykhtin         ###   ########.fr       */
+/*   Created: 2021/10/19 11:15:27 by jdecorte          #+#    #+#             */
+/*   Updated: 2021/10/19 11:59:18 by jdecorte         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
-
 # include <stdlib.h>
+# include <sys/types.h>
+# include <sys/uio.h>
 # include <unistd.h>
 
-#ifndef BUFFER_SIZE
-# define BUFFER_SIZE 42
-#endif
-
 char	*get_next_line(int fd);
-char    ft_strchr(const char *s, int c);
+char	*ft_strjoin(char const *s1, char const *s2);
+char	*ft_strchr(const char *string, int searchedChar );
+
+void	ft_bzero(void *s, size_t n);
+void	*ft_calloc(size_t elementCount, size_t elementSize);
+
+size_t	ft_strlen(const char *theString);
+
 #endif

@@ -3,67 +3,87 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_utils.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ipykhtin <ipykhtin@student.42.fr>          +#+  +:+       +#+        */
+/*   By: jdecorte <jdecorte@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/27 16:36:57 by ipykhtin          #+#    #+#             */
-/*   Updated: 2025/12/12 19:05:21 by ipykhtin         ###   ########.fr       */
+/*   Created: 2021/10/19 11:14:11 by jdecorte          #+#    #+#             */
+/*   Updated: 2021/10/19 11:32:26 by jdecorte         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-int ft_strchr(const char *s, int c)
+char	*ft_strjoin(char const *s1, char const *s2)
 {
-    while (*s)
-    {
-        if (*s == (char)c)
-            return 1;
-        s++;
-    }
-    if (c == '\0' && *s == '\0')
-        return 1;
-    return 0;
-}
-size_t ft_strlen(const char *s)
-{
-    size_t len = 0;
-    while (s[len])
-        len++;
-    return len;
+	int		sizetotal;
+	char	*res;
+	int		i;
+	int		j;
+
+	i = 0;
+	sizetotal = ft_strlen(s1) + ft_strlen(s2);
+	res = malloc(sizeof(char) * (sizetotal + 1));
+	if (!res || !s1 || !s2)
+		return (NULL);
+	while (s1[i] != 0)
+	{
+		res[i] = s1[i];
+		i++;
+	}
+	j = 0;
+	while (s2[j] != 0)
+	{
+		res[i] = s2[j];
+		i++;
+		j++;
+	}
+	res[sizetotal] = 0;
+	return (res);
 }
 
-void ft_strcpy(char *dest, const char *src)
+char	*ft_strchr(const char *string, int searchedChar )
 {
-    size_t i = 0;
-    while (src[i])
-    {
-        dest[i] = src[i];
-        i++;
-    }
-    dest[i] = '\0';
+	char	*str;
+
+	str = (char *)string;
+	while (*str != searchedChar && *str != 0)
+		str++;
+	if (*str == searchedChar)
+		return (str);
+	else
+		return (NULL);
 }
 
-char *ft_strdup(const char *s)
+void	ft_bzero(void *s, size_t n)
 {
-    size_t len = ft_strlen(s);
-    char *dup = malloc(len + 1);
-    if (!dup)
-        return NULL;
-    ft_strcpy(dup, s);
-    return dup;
+	char	*str;
+	size_t	i;
+
+	str = (char *)s;
+	i = 0;
+	while (i < n)
+	{
+		str[i] = '\0';
+		i++;
+	}
 }
 
-void ft_strncpy(char *dest, const char *src, size_t n)
+void	*ft_calloc(size_t elementCount, size_t elementSize)
 {
-    size_t i = 0;
-    while (i < n && src[i])
-    {
-        dest[i] = src[i];
-        i++;
-    }
-    while (i < n)
-    {
-        dest[i] = '\0';
-        i++;
-    }
+	char	*res;
+
+	res = malloc(elementSize * elementCount);
+	if (!res)
+		return (NULL);
+	ft_bzero(res, elementSize * elementCount);
+	return (res);
+}
+
+size_t	ft_strlen(const char *theString)
+{
+	int	i;
+
+	i = 0;
+	while (theString[i])
+		i++;
+	return (i);
 }
