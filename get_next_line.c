@@ -6,7 +6,7 @@
 /*   By: ivan <ivan@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/19 11:09:06 by jdecorte          #+#    #+#             */
-/*   Updated: 2025/12/19 18:29:24 by ivan             ###   ########.fr       */
+/*   Updated: 2025/12/19 18:44:24 by ivan             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,6 +88,32 @@ char	*ft_line(char *buffer)
     return (line);
 }
 // ...existing code...
+static char	*ft_realloc_join(char *s1, char *s2, size_t s1_len, size_t s2_len)
+{
+	char	*res;
+	size_t	i;
+	size_t	j;
+
+	res = malloc(sizeof(char) * (s1_len + s2_len + 1));
+	if (!res)
+		return (NULL);
+	i = 0;
+	while (i < s1_len)
+	{
+		res[i] = s1[i];
+		i++;
+	}
+	j = 0;
+	while (j < s2_len)
+	{
+		res[i] = s2[j];
+		i++;
+		j++;
+	}
+	res[i] = 0;
+	return (res);
+}
+
 char	*read_file(int fd, char *res)
 {
     char	*buffer;
@@ -95,14 +121,22 @@ char	*read_file(int fd, char *res)
     char	*new_res;
     int		byte_read;
     int     res_owned;
+    size_t  res_len;
+    size_t  buffer_len;
 
     res_owned = 0;
+    res_len = 0;
     if (!res)
     {
         res = ft_calloc(1, 1);
         if (!res)
             return (NULL);
         res_owned = 1;
+        res_len = 0;
+    }
+    else
+    {
+        res_len = ft_strlen(res);
     }
     buffer = ft_calloc(BUFFER_SIZE + 1, sizeof(char));
     if (!buffer)
@@ -124,12 +158,15 @@ char	*read_file(int fd, char *res)
                 free(res);
             return (NULL);
         }
+        if (byte_read == 0)
+            break;
         buffer[byte_read] = 0;
+        buffer_len = byte_read;
         old_res = res;
-        new_res = ft_strjoin(res, buffer);
+        new_res = ft_realloc_join(res, buffer, res_len, buffer_len);
         if (!new_res)
         {
-            /* ft_strjoin failed; don't free old_res here (caller will handle it).
+            /* ft_realloc_join failed; don't free old_res here (caller will handle it).
                Free the temporary buffer. */
             free(buffer);
             if (res_owned)
@@ -141,6 +178,7 @@ char	*read_file(int fd, char *res)
             free(old_res);
         res = new_res;
         res_owned = 1;
+        res_len += buffer_len;
         if (ft_strchr(buffer, '\n'))
             break ;
     }
