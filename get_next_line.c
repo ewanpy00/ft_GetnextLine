@@ -3,124 +3,183 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ivan <ivan@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: ipykhtin <ipykhtin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/19 11:09:06 by jdecorte          #+#    #+#             */
-/*   Updated: 2025/12/19 00:12:33 by ivan             ###   ########.fr       */
+/*   Updated: 2025/12/19 18:13:56 by ipykhtin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-// join and free
 char	*ft_free(char *buffer, char *buf)
 {
-	char	*temp;
+    char	*temp;
 
-	temp = ft_strjoin(buffer, buf);
-	free(buffer);
-	return (temp);
+    temp = ft_strjoin(buffer, buf);
+    /* if join failed, do NOT free the original buffer here (caller will handle) */
+    if (!temp)
+        return (NULL);
+    free(buffer);
+    return (temp);
 }
-
-// delete line find
+// ...existing code...
 char	*ft_next(char *buffer)
 {
-	int		i;
-	int		j;
-	char	*line;
+    int		i;
+    int		j;
+    char	*line;
 
-	i = 0;
-	// find len of first line
-	while (buffer[i] && buffer[i] != '\n')
-		i++;
-	// if eol == \0 return NULL
-	if (!buffer[i])
-	{
-		free(buffer);
-		return (NULL);
-	}
-	// len of file - len of firstline + 1
-	line = ft_calloc((ft_strlen(buffer) - i + 1), sizeof(char));
-	i++;
-	j = 0;
-	// line == buffer
-	while (buffer[i])
-		line[j++] = buffer[i++];
-	free(buffer);
-	return (line);
+    if (!buffer)
+        return (NULL);
+    i = 0;
+    while (buffer[i] && buffer[i] != '\n')
+        i++;
+    if (!buffer[i])
+    {
+        free(buffer);
+        return (NULL);
+    }
+    if (buffer[i + 1] == '\0')
+    {
+        free(buffer);
+        return (NULL);
+    }
+    line = ft_calloc((ft_strlen(buffer) - i), sizeof(char));
+    if (!line)
+    {
+        free(buffer);
+        return (NULL);
+    }
+    i++;
+    j = 0;
+    while (buffer[i])
+        line[j++] = buffer[i++];
+    free(buffer);
+    return (line);
 }
-
-// take line for return
+// ...existing code...
 char	*ft_line(char *buffer)
 {
-	char	*line;
-	int		i;
+    char	*line;
+    int		i;
 
-	i = 0;
-	// if no line return NULL
-	if (!buffer[i])
-		return (NULL);
-	// go to the eol
-	while (buffer[i] && buffer[i] != '\n')
-		i++;
-	// malloc to eol
-	line = ft_calloc(i + 2, sizeof(char));
-	i = 0;
-	// line = buffer
-	while (buffer[i] && buffer[i] != '\n')
-	{
-		line[i] = buffer[i];
-		i++;
-	}
-	// if eol is \0 or \n, replace eol by \n
-	if (buffer[i] && buffer[i] == '\n')
-		line[i++] = '\n';
-	return (line);
+    if (!buffer)
+        return (NULL);
+    i = 0;
+    if (!buffer[i])
+        return (NULL);
+    while (buffer[i] && buffer[i] != '\n')
+        i++;
+    if (buffer[i] == '\n')
+        line = ft_calloc(i + 2, sizeof(char));
+    else
+        line = ft_calloc(i + 1, sizeof(char));
+    if (!line)
+        return (NULL);
+    i = 0;
+    while (buffer[i] && buffer[i] != '\n')
+    {
+        line[i] = buffer[i];
+        i++;
+    }
+    if (buffer[i] && buffer[i] == '\n')
+        line[i++] = '\n';
+    return (line);
 }
-
+// ...existing code...
 char	*read_file(int fd, char *res)
 {
-	char	*buffer;
-	int		byte_read;
+    char	*buffer;
+    char	*old_res;
+    int		byte_read;
+    int     new_res;
 
-	// malloc if res dont exist
-	if (!res)
-		res = ft_calloc(1, 1);
-	// malloc buffer
-	buffer = ft_calloc(BUFFER_SIZE + 1, sizeof(char));
-	byte_read = 1;
-	while (byte_read > 0)
-	{
-		// while not eof read
-		byte_read = read(fd, buffer, BUFFER_SIZE);
-		if (byte_read == -1)
-		{
-			free(buffer);
-			return (NULL);
-		}
-		// 0 to end for leak
-		buffer[byte_read] = 0;
-		// join and free
-		res = ft_free(res, buffer);
-		// quit if \n find
-		if (ft_strchr(buffer, '\n'))
-			break ;
-	}
-	free(buffer);
-	return (res);
+    new_res = 0;
+    if (!res)
+    {
+        res = ft_calloc(1, 1);
+        if (!res)
+            return (NULL);
+        new_res = 1;
+    }
+    buffer = ft_calloc(BUFFER_SIZE + 1, sizeof(char));
+    if (!buffer)
+    {
+        if (new_res)
+            free(res);
+        return (NULL);
+    }
+    byte_read = 1;
+    while (byte_read > 0)
+    {
+        byte_read = read(fd, buffer, BUFFER_SIZE);
+        if (byte_read == -1)
+        {
+            free(buffer);
+            if (new_res)
+                free(res);
+            return (NULL);
+        }
+        buffer[byte_read] = 0;
+        old_res = res;
+        res = ft_free(res, buffer);
+        if (!res)
+        {
+            /* ft_strjoin failed; free temporary buffer and free res only if it was newly allocated */
+            free(buffer);
+            if (new_res && old_res)
+                free(old_res);
+            return (NULL);
+        }
+        if (ft_strchr(buffer, '\n'))
+            break ;
+    }
+    free(buffer);
+    return (res);
 }
-
+// ...existing code...
 char	*get_next_line(int fd)
 {
-	static char	*buffer;
-	char		*line;
+    static char	*buffer;
+    char		*line;
+    char		*tmp;
 
-	if (fd < 0 || BUFFER_SIZE <= 0 || read(fd, 0, 0) < 0)
-		return (NULL);
-	buffer = read_file(fd, buffer);
-	if (!buffer)
-		return (NULL);
-	line = ft_line(buffer);
-	buffer = ft_next(buffer);
-	return (line);
+    if (fd < 0 || BUFFER_SIZE <= 0)
+        return (NULL);
+    if (read(fd, 0, 0) < 0)
+    {
+        if (buffer)
+        {
+            free(buffer);
+            buffer = NULL;
+        }
+        return (NULL);
+    }
+    tmp = read_file(fd, buffer);
+    if (!tmp)
+    {
+        if (buffer)
+        {
+            free(buffer);
+            buffer = NULL;
+        }
+        return (NULL);
+    }
+    buffer = tmp;
+    line = ft_line(buffer);
+    /* If no line can be produced (buffer empty), free static buffer and return NULL.
+       This prevents calling ft_next in situations where it would allocate a new
+       leftover buffer that may never be freed by the caller. */
+    if (!line)
+    {
+        if (buffer)
+        {
+            free(buffer);
+            buffer = NULL;
+        }
+        return (NULL);
+    }
+    buffer = ft_next(buffer);
+    return (line);
 }
