@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ipykhtin <ipykhtin@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ivan <ivan@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/19 11:09:06 by jdecorte          #+#    #+#             */
-/*   Updated: 2025/12/19 18:13:56 by ipykhtin         ###   ########.fr       */
+/*   Updated: 2025/12/19 18:29:24 by ivan             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,21 +92,22 @@ char	*read_file(int fd, char *res)
 {
     char	*buffer;
     char	*old_res;
+    char	*new_res;
     int		byte_read;
-    int     new_res;
+    int     res_owned;
 
-    new_res = 0;
+    res_owned = 0;
     if (!res)
     {
         res = ft_calloc(1, 1);
         if (!res)
             return (NULL);
-        new_res = 1;
+        res_owned = 1;
     }
     buffer = ft_calloc(BUFFER_SIZE + 1, sizeof(char));
     if (!buffer)
     {
-        if (new_res)
+        if (res_owned)
             free(res);
         return (NULL);
     }
@@ -117,21 +118,29 @@ char	*read_file(int fd, char *res)
         if (byte_read == -1)
         {
             free(buffer);
-            if (new_res)
+            /* Only free res if we own it (newly allocated in this function).
+               If res was passed from outside (static buffer), let caller handle it */
+            if (res_owned)
                 free(res);
             return (NULL);
         }
         buffer[byte_read] = 0;
         old_res = res;
-        res = ft_free(res, buffer);
-        if (!res)
+        new_res = ft_strjoin(res, buffer);
+        if (!new_res)
         {
-            /* ft_strjoin failed; free temporary buffer and free res only if it was newly allocated */
+            /* ft_strjoin failed; don't free old_res here (caller will handle it).
+               Free the temporary buffer. */
             free(buffer);
-            if (new_res && old_res)
+            if (res_owned)
                 free(old_res);
             return (NULL);
         }
+        /* If we owned the old res, free it now. Otherwise, let caller handle it. */
+        if (res_owned)
+            free(old_res);
+        res = new_res;
+        res_owned = 1;
         if (ft_strchr(buffer, '\n'))
             break ;
     }
@@ -159,12 +168,22 @@ char	*get_next_line(int fd)
     tmp = read_file(fd, buffer);
     if (!tmp)
     {
+        /* If read_file failed:
+           - read_file only frees buffers it allocated (res_owned = 1)
+           - If buffer was passed to read_file, it was NOT freed by read_file
+           - So we need to free buffer here if it exists */
         if (buffer)
         {
             free(buffer);
             buffer = NULL;
         }
         return (NULL);
+    }
+    /* If buffer was passed to read_file and read_file succeeded, buffer was
+       replaced by tmp. We need to free the old buffer if it exists. */
+    if (buffer && buffer != tmp)
+    {
+        free(buffer);
     }
     buffer = tmp;
     line = ft_line(buffer);
