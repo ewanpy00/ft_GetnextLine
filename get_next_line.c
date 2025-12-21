@@ -4,25 +4,20 @@ char	*ft_line(int fd, char *line)
 {
 	char	*buff;
 	ssize_t	bytes_read;
-	char	*temp;
 
 	if (fd < 0 || !(buff = malloc(sizeof(char) * (BUFFER_SIZE + 1))))
 		return (NULL);
 	bytes_read = 1;
-	while (!ft_strchr(line, '\n') && bytes_read > 0 && (bytes_read = read(fd, buff, BUFFER_SIZE)) >= 0)
+	while (!ft_strchr(line, '\n') && bytes_read > 0)
 	{
+		if ((bytes_read = read(fd, buff, BUFFER_SIZE)) < 0)
+			break ;
 		buff[bytes_read] = '\0';
-		if (!(temp = ft_strjoin(line, buff)))
-		{
-			free(buff);
-			if (line)
-				free(line);
-			return (NULL);
-		}
-		line = temp;
+		if (!(line = ft_strjoin(line, buff)))
+			break ;
 	}
 	free(buff);
-	if (bytes_read < 0 || !line || !ft_strlen(line))
+	if (bytes_read < 0 || !line || ft_strlen(line) == 0)
 	{
 		if (line)
 			free(line);
@@ -68,7 +63,7 @@ char	*new_line(char *line)
 	i = 0;
 	while (line[i] != '\0' && line[i] != '\n')
 		i++;
-	if (line[i] == '\0' || !(new_buffer = malloc(sizeof(char) * (ft_strlen(line) - i + 1))))
+	if (line[i] == '\0' || !(new_buffer = malloc(sizeof(char) * (ft_strlen(line) - i))))
 	{
 		free(line);
 		return (NULL);
@@ -86,7 +81,7 @@ char	*get_next_line(int fd)
 	static char			*line;
 	char				*next_line;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
+	if (fd < 0 || BUFFER_SIZE <= 0 || BUFFER_SIZE > 2147483647)
 		return (NULL);
 	line = ft_line(fd, line);
 	if (!line)
@@ -101,3 +96,28 @@ char	*get_next_line(int fd)
 	line = new_line(line);
 	return (next_line);
 }
+
+// #include <stdio.h>
+// #include <fcntl.h>
+// #include <stdlib.h>
+// #include <unistd.h>
+
+// int main(void)
+// {
+//     long fd;
+//     char *line;
+
+//     fd = open("text.txt", O_RDONLY);
+//     if (fd < 0)
+//     {
+//         perror("open");
+//         return (1);
+//     }
+//     while ((line = get_next_line(fd)) != NULL)
+//     {
+//         write(1, line, ft_strlen(line));
+//         free(line);
+//     }
+//     close(fd);
+//     return (0);
+// }
