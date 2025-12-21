@@ -4,20 +4,25 @@ char	*ft_line(int fd, char *line)
 {
 	char	*buff;
 	ssize_t	bytes_read;
+	char	*temp;
 
 	if (fd < 0 || !(buff = malloc(sizeof(char) * (BUFFER_SIZE + 1))))
 		return (NULL);
 	bytes_read = 1;
-	while (!ft_strchr(line, '\n') && bytes_read > 0)
+	while (!ft_strchr(line, '\n') && bytes_read > 0 && (bytes_read = read(fd, buff, BUFFER_SIZE)) >= 0)
 	{
-		if ((bytes_read = read(fd, buff, BUFFER_SIZE)) < 0)
-			break ;
 		buff[bytes_read] = '\0';
-		if (!(line = ft_strjoin(line, buff)))
-			break ;
+		if (!(temp = ft_strjoin(line, buff)))
+		{
+			free(buff);
+			if (line)
+				free(line);
+			return (NULL);
+		}
+		line = temp;
 	}
 	free(buff);
-	if (bytes_read < 0 || !line || ft_strlen(line) == 0)
+	if (bytes_read < 0 || !line || !ft_strlen(line))
 	{
 		if (line)
 			free(line);
@@ -42,7 +47,10 @@ char	*ft_next_line(char *line)
 		return (NULL);
 	i = 0;
 	while (line[i] != '\0' && line[i] != '\n')
-		next_line[i++] = line[i];
+	{
+		next_line[i] = line[i];
+		i++;
+	}
 	if (line[i] == '\n')
 		next_line[i++] = '\n';
 	next_line[i] = '\0';
@@ -60,7 +68,7 @@ char	*new_line(char *line)
 	i = 0;
 	while (line[i] != '\0' && line[i] != '\n')
 		i++;
-	if (line[i] == '\0' || !(new_buffer = malloc(sizeof(char) * (ft_strlen(line) - i))))
+	if (line[i] == '\0' || !(new_buffer = malloc(sizeof(char) * (ft_strlen(line) - i + 1))))
 	{
 		free(line);
 		return (NULL);
