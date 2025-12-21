@@ -5,34 +5,22 @@ char	*ft_line(int fd, char *line)
 	char	*buff;
 	ssize_t	bytes_read;
 
-	if (fd < 0)
-		return (NULL);
-	buff = (char *)malloc(sizeof(char) * (BUFFER_SIZE + 1));
-	if (!buff)
+	if (fd < 0 || !(buff = malloc(sizeof(char) * (BUFFER_SIZE + 1))))
 		return (NULL);
 	bytes_read = 1;
 	while (!ft_strchr(line, '\n') && bytes_read > 0)
 	{
-		bytes_read = read(fd, buff, BUFFER_SIZE);
-		if (bytes_read < 0)
-		{
-			free(buff);
-			if (line)
-				free(line);
-			return (NULL);
-		}
+		if ((bytes_read = read(fd, buff, BUFFER_SIZE)) < 0)
+			break ;
 		buff[bytes_read] = '\0';
-		line = ft_strjoin(line, buff);
-		if (!line)
-		{
-			free(buff);
-			return (NULL);
-		}
+		if (!(line = ft_strjoin(line, buff)))
+			break ;
 	}
 	free(buff);
-	if (ft_strlen(line) == 0)
+	if (bytes_read < 0 || !line || ft_strlen(line) == 0)
 	{
-		free(line);
+		if (line)
+			free(line);
 		return (NULL);
 	}
 	return (line);
@@ -49,23 +37,14 @@ char	*ft_next_line(char *line)
 	i = 0;
 	while (line[i] != '\0' && line[i] != '\n')
 		i++;
-	len = i;
-	if (line[i] == '\n')
-		len++;
-	next_line = (char *)malloc(sizeof(char) * (len + 1));
-	if (!next_line)
+	len = i + (line[i] == '\n');
+	if (!(next_line = malloc(sizeof(char) * (len + 1))))
 		return (NULL);
 	i = 0;
 	while (line[i] != '\0' && line[i] != '\n')
-	{
-		next_line[i] = line[i];
-		i++;
-	}
+		next_line[i++] = line[i];
 	if (line[i] == '\n')
-	{
-		next_line[i] = '\n';
-		i++;
-	}
+		next_line[i++] = '\n';
 	next_line[i] = '\0';
 	return (next_line);
 }
@@ -81,21 +60,14 @@ char	*new_line(char *line)
 	i = 0;
 	while (line[i] != '\0' && line[i] != '\n')
 		i++;
-	if (line[i] == '\0')
-	{
-		free(line);
-		return (NULL);
-	}
-	i++;
-	new_buffer = (char *)malloc(sizeof(char) * (ft_strlen(line) - i + 1));
-	if (!new_buffer)
+	if (line[i] == '\0' || !(new_buffer = malloc(sizeof(char) * (ft_strlen(line) - i))))
 	{
 		free(line);
 		return (NULL);
 	}
 	j = 0;
-	while (line[i] != '\0')
-		new_buffer[j++] = line[i++];
+	while (line[++i] != '\0')
+		new_buffer[j++] = line[i];
 	new_buffer[j] = '\0';
 	free(line);
 	return (new_buffer);
