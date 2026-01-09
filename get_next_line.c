@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ipykhtin <ipykhtin@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/09 20:53:02 by ipykhtin          #+#    #+#             */
+/*   Updated: 2026/01/09 20:56:40 by ipykhtin         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line.h"
 
 char	*ft_line(int fd, char *line)
@@ -5,15 +17,18 @@ char	*ft_line(int fd, char *line)
 	char	*buff;
 	ssize_t	bytes_read;
 
-	if (fd < 0 || !(buff = malloc(sizeof(char) * (BUFFER_SIZE + 1))))
+	buff = malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (fd < 0 || !buff)
 		return (NULL);
 	bytes_read = 1;
 	while (!ft_strchr(line, '\n') && bytes_read > 0)
 	{
-		if ((bytes_read = read(fd, buff, BUFFER_SIZE)) < 0)
+		bytes_read = read(fd, buff, BUFFER_SIZE);
+		if (bytes_read < 0)
 			break ;
 		buff[bytes_read] = '\0';
-		if (!(line = ft_strjoin(line, buff)))
+		line = ft_strjoin(line, buff);
+		if (!line)
 			break ;
 	}
 	free(buff);
@@ -38,7 +53,8 @@ char	*ft_next_line(char *line)
 	while (line[i] != '\0' && line[i] != '\n')
 		i++;
 	len = i + (line[i] == '\n');
-	if (!(next_line = malloc(sizeof(char) * (len + 1))))
+	next_line = malloc(sizeof(char) * (len + 1));
+	if (!next_line)
 		return (NULL);
 	i = 0;
 	while (line[i] != '\0' && line[i] != '\n')
@@ -58,12 +74,16 @@ char	*new_line(char *line)
 	size_t	i;
 	size_t	j;
 
-	if (!line)
-		return (NULL);
 	i = 0;
 	while (line[i] != '\0' && line[i] != '\n')
 		i++;
-	if (line[i] == '\0' || !(new_buffer = malloc(sizeof(char) * (ft_strlen(line) - i))))
+	if (line[i] == '\0')
+	{
+		free(line);
+		return (NULL);
+	}
+	new_buffer = malloc(sizeof(char) * (ft_strlen(line) - i));
+	if (!new_buffer)
 	{
 		free(line);
 		return (NULL);
@@ -78,8 +98,8 @@ char	*new_line(char *line)
 
 char	*get_next_line(int fd)
 {
-	static char			*line;
-	char				*next_line;
+	static char	*line;
+	char		*next_line;
 
 	if (fd < 0 || BUFFER_SIZE <= 0 || BUFFER_SIZE > 2147483647)
 		return (NULL);
