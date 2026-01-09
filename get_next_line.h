@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ivan <ivan@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: ipykhtin <ipykhtin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/19 11:15:27 by jdecorte          #+#    #+#             */
-/*   Updated: 2025/12/21 12:24:42 by ivan             ###   ########.fr       */
+/*   Updated: 2026/01/09 21:15:06 by ipykhtin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,10 @@
 # include <stddef.h>
 # include <stdio.h>
 # include <unistd.h>
+
+#ifndef BUFFER_SIZE
+# define BUFFER_SIZE 42
+#endif
 
 char	*get_next_line(int fd);
 char	*ft_strjoin(char *line, char *buff);
