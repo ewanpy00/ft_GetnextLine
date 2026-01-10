@@ -6,7 +6,7 @@
 /*   By: ipykhtin <ipykhtin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/09 20:53:02 by ipykhtin          #+#    #+#             */
-/*   Updated: 2026/01/09 21:13:14 by ipykhtin         ###   ########.fr       */
+/*   Updated: 2026/01/10 14:34:54 by ipykhtin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,27 +117,27 @@ char	*get_next_line(int fd)
 	return (next_line);
 }
 
-#include <stdio.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <unistd.h>
+// #include <stdio.h>
+// #include <fcntl.h>
+// #include <stdlib.h>
+// #include <unistd.h>
 
-int main(void)
-{
-    long fd;
-    char *line;
+// int main(void)
+// {
+//     long fd;
+//     char *line;
 
-    fd = open("text.txt", O_RDONLY);
-    if (fd < 0)
-    {
-        perror("open");
-        return (1);
-    }
-    while ((line = get_next_line(fd)) != NULL)
-    {
-        write(1, line, ft_strlen(line));
-        free(line);
-    }
-    close(fd);
-    return (0);
-}
+//     fd = open("text.txt", O_RDONLY);
+//     if (fd < 0)
+//     {
+//         perror("open");
+//         return (1);
+//     }
+//     while ((line = get_next_line(fd)) != NULL)
+//     {
+//         write(1, line, ft_strlen(line));
+//         free(line);
+//     }
+//     close(fd);
+//     return (0);
+// }

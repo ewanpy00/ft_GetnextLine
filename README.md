@@ -1,11 +1,47 @@
-This project has been created as a part of 42 curriculum by ipykhtin
+# 📄 Get Next Line
 
-Description
+> **42 School Project**  
+> Created by **ipykhtin**
 
-The main puprose of the Get Next Line project is to present the idea of static fields in programing and give the brief examples of how this knowledge can be used. It also made me dive deeper in the principes of memory allocation in C and I have found a lot of new things about how kernel works,
+---
 
-Instructions
+## 🧠 Description
 
-Project should be compiled with the usage of ¨cc -Wall -Wextra -Werror -D BUFFER_SIZE=42 get_next_line.c get_next_line_utils.c¨ BUFFER_SIZE=42 is given as an example
+The **Get Next Line** project introduces the concept of **static variables** in C and demonstrates how they can be used to maintain state between function calls.
 
-also project should be possible to compile with and without the -D flag
+Through this project, I explored:
+- How static storage duration works in C
+- Memory allocation at different stages of program execution
+- File descriptors and buffered reading
+- Low-level behavior of memory management and interaction with the kernel
+
+Although I was already familiar with static fields from Java, this project allowed me to deepen my understanding of how **hardware and software memory layers** interact in C.
+
+---
+
+## ⚙️ Compilation
+
+The project must be compiled using the following command:
+
+
+cc -Wall -Wextra -Werror -D BUFFER_SIZE=42 \
+    get_next_line.c get_next_line_utils.c
+
+---
+
+
+## 📚 Resources
+
+During the development of this project, I used the following resources to deepen my understanding of the concepts involved:
+
+- **42 Documentation & Subject PDF** – project requirements and constraints
+- **Linux man pages** (`read`, `open`, `close`, `malloc`, `free`)
+- **GitHub Copilot** – assistance with code suggestions and structure
+- **ChatGPT** – conceptual explanations related to:
+  - static variables
+  - memory allocation
+  - compilation stages
+  - low-level system behavior
+
+These resources were used strictly for **learning and conceptual understanding**, not for copying code.
+
